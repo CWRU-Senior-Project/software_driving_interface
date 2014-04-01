@@ -18,7 +18,7 @@ find_package(catkin REQUIRED COMPONENTS
 ## Uncomment this if the package has a setup.py. This macro ensures
 ## modules and global scripts declared therein get installed
 ## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
-# catkin_python_setup()
+#catkin_python_setup()
 
 ################################################
 ## Declare ROS messages, services and actions ##
@@ -177,10 +177,10 @@ include_directories(include ${catkin_INCLUDE_DIRS})
 #target_link_libraries(SDI ${catkin_LIBRARIES})
 #add_dependencies(SDI ${catkin_EXPORTED_TARGETS})
 
-add_executable(SDI_cmd src/SDI_cmd.cpp)
-target_link_libraries(SDI_cmd ${catkin_LIBRARIES})
-add_dependencies(SDI_cmd ${catkin_EXPORTED_TARGETS}_gencpp)
+#add_executable(SDI_cmd src/SDI_cmd.cpp)
+#target_link_libraries(SDI_cmd ${catkin_LIBRARIES})
+#add_dependencies(SDI_cmd ${catkin_EXPORTED_TARGETS}_gencpp)
 
-add_executable(SDI_state src/SDI_state.cpp)
-target_link_libraries(SDI_state ${catkin_LIBRARIES})
-add_dependencies(SDI_state ${catkin_EXPORTED_TARGETS}_gencpp)
+#add_executable(SDI_state src/SDI_state.cpp)
+#target_link_libraries(SDI_state ${catkin_LIBRARIES})
+#add_dependencies(SDI_state ${catkin_EXPORTED_TARGETS}_gencpp)
