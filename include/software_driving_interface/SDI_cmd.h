@@ -72,15 +72,20 @@ namespace software_driving_interface
          /*--------------------------------
           *   Functions
           *--------------------------------*/
+         // Bind values from HDI-to-SDI control messages to class properties
          void extractMsgValues(const software_driving_interface::HDI_control::ConstPtr& msg);
+
+         // Validate and restrict SDI-to-Sim message values
          void validateMsgInput();
 
          /*--------------------------------
           *   Logging
           *--------------------------------*/
+
+         // Log HDI-to-SDI control message
          void logMessage(const software_driving_interface::HDI_control::ConstPtr& msg);
-         void logOutboundMessage(string* topic, const std_msgs::Int8::ConstPtr& msg);
-         void logOutboundMessage(string* topic, const std_msgs::Float64::ConstPtr& msg);
+
+         // Log SDI-to-Sim control messages
          void logMessage();
 
    }; // end of SDI_cmd class
