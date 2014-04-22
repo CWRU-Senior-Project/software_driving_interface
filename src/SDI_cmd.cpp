@@ -7,6 +7,11 @@
 using namespace sdi;
 using namespace std;
 
+SDI_cmd::SDI_cmd()
+{
+   messageProcessed = false;
+}
+
 void SDI_Listener::extractMsgValues(const software_driving_interface::HDI_control::ConstPtr& msg)
 {
 	SDI_Listener::logMessage(msg);

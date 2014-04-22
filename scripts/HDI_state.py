@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import rospy
-from software_driving_interface.msg import HDI_state
+from software_driving_interface.msg import HDI_feedback
 
 # Print output
 def callback(msg):
@@ -13,7 +13,7 @@ def callback(msg):
 ################################################################
 def listener():
    rospy.init_node('HDI_feedback_listener')
-   rospy.Subscriber("HDI_feedback", HDI_state, callback)
+   rospy.Subscriber("HDI/state", HDI_feedback, callback)
    rospy.spin()
 
 

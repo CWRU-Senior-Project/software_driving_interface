@@ -1,5 +1,5 @@
 #########################
-# HDI cmd message to SDI
+# HDI control message to SDI
 #########################
 float64 wheel_angle	# [-5*PI,+5*PI] in radians
 float64 gas_pos		# [0.0, 1.0]

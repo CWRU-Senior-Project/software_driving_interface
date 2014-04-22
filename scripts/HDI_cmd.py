@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 import rospy
-from software_driving_interface.msg import HDI_cmd
+from software_driving_interface.msg import HDI_control
 
 ####################################################
 # Test Talker for HDI to verify communication:
 #   sends constant values using HDI_control messages
 ####################################################
 def talker():
-   pub = rospy.Publisher('HDI/cmd', HDI_cmd)
+   pub = rospy.Publisher('HDI/cmd', HDI_control)
    rospy.init_node('HDI_control_talker')
    rate = rospy.Rate(100) # 100 Hz
 

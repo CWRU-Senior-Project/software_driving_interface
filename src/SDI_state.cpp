@@ -1,6 +1,4 @@
-#include "software_driving_interface/testListener.h"
-#include "software_driving_interface/HDI_feedback.h"
-//#include "driving_msgs/HDI_feedback.h"
+#include "software_driving_interface/SDI_state.h"
 #include "geometry_msgs/Point.h"
 #include "geometry_msgs/Pose.h"
 #include "geometry_msgs/PoseWithCovariance.h"
@@ -30,7 +28,7 @@ void SDI_Talker::setWheelForce(const std_msgs::Float64::ConstPtr& msg)
    ROS_INFO("Wheel Force Set");
 }
 
-void SDI_Talker::logMessage(software_driving_interface::HDI_feedback& msg)//const software_driving_interface::HDI_feedback::ConstPtr& msg)
+void SDI_Talker::logMessage(software_driving_interface::HDI_feedback& msg)
 {
    stringstream ss;
 
