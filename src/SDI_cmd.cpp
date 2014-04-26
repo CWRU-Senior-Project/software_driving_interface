@@ -83,11 +83,11 @@ void SDI_cmd::validateMsgInput()
 
    if ((!searchResult) && (searchResult >= VALID_DIRECTION_VALUES + 4))
    {
-      ROS_WARN("Value of vehicle direction received from HDI (%f) is not VALID. Acceptable values are (-1: REVERSE, 0: NEUTRAL, 1: FORWARD, 2: PARK). Value set to max.", wheelAngleMsg.data, MAX_WHEEL_POS);
-      directionValueMsg.data = 0;
+      ROS_WARN("Value of vehicle direction received from HDI (%f) is not VALID. Acceptable values are (0: PARK, 1: REVERSE, 2: NEUTRAL, 3: FORWARD). Value set to NEUTRAL.", directionValueMsg.data);
+      directionValueMsg.data = 2;
    }
 
-   if (2 == directionValueMsg.data)
+   if (0 == directionValueMsg.data)
    {
       handBrakePercentMsg.data = 1.0;
       directionValueMsg.data = 0.0;
