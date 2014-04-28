@@ -1,6 +1,4 @@
 #include "software_driving_interface/SDI_state.h"
-#include "software_driving_interface/HDI_feedback.h"
-//#include "driving_msgs/HDI_feedback.h"
 #include "geometry_msgs/Point.h"
 #include "geometry_msgs/Pose.h"
 #include "geometry_msgs/PoseWithCovariance.h"
@@ -9,60 +7,19 @@
 #include "geometry_msgs/TwistWithCovariance.h"
 #include <math.h>
 
-using namespace sdi;
+using namespace software_driving_interface;
 using namespace std;
 
-/***************************************************************
-
-	Callbacks
-
-***************************************************************/
-void SDI_Talker::setWheelAngle(const std_msgs::Float64::ConstPtr& msg)
+void SDI_state::setWheelAngle(const std_msgs::Float64::ConstPtr& msg)
 {
    logMessage("wheel_angle", msg);
+
    this->wheelAngle = msg->data;
-//   this->feedbackMsg.wheel_angle = msg->data;
-//   messageProcessed = true;
-//   ROS_INFO("Wheel Angle Set");
+   this->feedbackMsg.wheel_angle = msg->data;
+   messageProcessed = true;
 }
 
-void SDI_Talker::setWheelForce(const std_msgs::Float64::ConstPtr& msg)
-{
-   logMessage("wheel_force", msg);
-   this->wheelForce = msg->data;
-//   this->feedbackMsg.wheel_force = msg->data;
-//   messageProcessed = true;
-//   ROS_INFO("Wheel Force Set");
-}
-
-void SDI_Talker::setVibration(const std_msgs::Int8::ConstPtr& msg)
-{
-	logMessage("vibration", msg); // TODO: replace with more accurate msg
-	logMessage("key", msg);
-
-	//	engine is on, provide vibrations
-	if (0 != msg->data)
-	{
-		this->vibration = 1.0;
-//		this->feedbackMsg.vibration = 1.0;
-	}
-	//	engine is off, no vibrations
-	else
-	{
-		this->vibration = 0.0;
-//		this->feedbackMsg.vibration = 0.0;
-	}
-
-//   messageProcessed = true;
-//   ROS_INFO("Vibration set");
-}
-
-/***************************************************************
-
-	Logging
-
-***************************************************************/
-void SDI_Talker::logMessage(software_driving_interface::HDI_feedback& msg)//const software_driving_interface::HDI_feedback::ConstPtr& msg)
+void SDI_state::logMessage(software_driving_interface::HDI_feedback& msg)
 {
    stringstream ss;
 
@@ -74,108 +31,79 @@ void SDI_Talker::logMessage(software_driving_interface::HDI_feedback& msg)//cons
    ROS_WARN_NAMED("Testing_WARN", ss.str().c_str());
 }
 
-void SDI_Talker::logMessage(string name, const std_msgs::Float64::ConstPtr& msg)
+void SDI_state::setVibration(const std_msgs::Int8::ConstPtr& msg)
 {
-	stringstream ss;
+   logMessage("vibration", msg);
+   logMessage("key", msg);
 
-	ss << "Sim message received by SDI and logged. Message contents:\n";
+   //	engine is on, provide vibrations
+   if (0 != msg->data)
+   {
+      this->vibration = 1.0;
+      this->feedbackMsg.vibration = 1.0;
+   }
+   //	engine is off, no vibrations
+   else
+   {
+      this->vibration = 0.0;
+      this->feedbackMsg.vibration = 0.0;
+   }
 
-	if ("wheel_force" == name)
-	{
-		ss << "Wheel Force:\t";
-	}
-	else if ("wheel_angle" == name)
-	{
-		ss << "Wheel Angle:\t";
-	}
-	else
-	{
-		ss << name << "\t";
-	}
-
-	ss << msg->data << "\n";
-
-	ROS_WARN_NAMED("Testing_WARN", ss.str().c_str());
+   messageProcessed = true;
 }
 
-void SDI_Talker::logMessage(string name, const std_msgs::Int8::ConstPtr& msg)
-{
-	stringstream ss;
-
-	ss << "Sim message received by SDI and logged. Message contents:\n";
-
-	if ("vibration" == name)
-	{
-		ss << "Vibration Value:\t";
-	}
-	else if ("key" == name)
-	{
-		ss << "Key State:\t";
-	}
-	else
-	{
-		ss << name << "\t";
-	}
-
-	ss << msg->data << "\n";
-
-	ROS_WARN_NAMED("Testing_WARN", ss.str().c_str());
-}
-
-void SDI_Talker::logMessage(const nav_msgs::Odometry::ConstPtr& msg)
+void SDI_state::logMessage(string name, const std_msgs::Float64::ConstPtr& msg)
 {
    stringstream ss;
 
-   ss << "Sim message received by SDI and logged. Relevant message contents:\n";
+   ss << "Sim message received by SDI and logged. Message contents:\n";
 
-   // Position
-   ss << "Position (x, y, z):\t(" << msg->pose.pose.position.x;
-   ss << ", " << msg->pose.pose.position.y;
-   ss << ", " << msg->pose.pose.position.z;
-   ss << ")\n";
-  
+   // Adjust logged name if needed
+   if ("wheel_force" == name)
+   {
+      ss << "Wheel Force:\t";
+   }
+   else if ("wheel_angle" == name)
+   {
+      ss << "Wheel Angle:\t";
+   }
+   else
+   {
+      ss << name << "\t";
+   }
 
-   // Linear Velocity
-   ss << "Linear velocity (x, y, z):\t(" << msg->twist.twist.linear.x;
-   ss << ", " << msg->twist.twist.linear.y;
-   ss << ", " << msg->twist.twist.linear.z;
-   ss << ")\n";
-  
-
-   // Angular Velocity
-   ss << "Angular velocity (x, y, z):\t(" << msg->twist.twist.angular.x;
-   ss << ", " << msg->twist.twist.angular.y;
-   ss << ", " << msg->twist.twist.angular.z;
-   ss << ")\n";
+   ss << msg->data << "\n";
 
    ROS_WARN_NAMED("Testing_WARN", ss.str().c_str());
 }
 
-/***************************************************************
-
-	Running
-
-***************************************************************/
-
-void SDI_Talker::setVelocity(const nav_msgs::Odometry::ConstPtr& msg)
+void SDI_state::logMessage(string name, const std_msgs::Int8::ConstPtr& msg)
 {
-// geometry_msgs/PoseWithCovariance pose
-//   geometry_msgs/Pose pose
-//      geometry_msgs/Point position
-//         float64/x
-//         float64/y
-//         float64/z
-//      geomtery_msgs/Quaternion orientation
-// geometry_msgs/TwistWithCovariance twist
-//   geometry_msgs/Twist twist
-//      geomtery_msgs/Vector3 linear
-//         float64/x
-//         float64/y
-//         float64/z
-//      geometry_msgs/Vector3 angular
+   stringstream ss;
 
-   logMessage(msg);
+   ss << "Sim message received by SDI and logged. Message contents:\n";
 
+   if ("vibration" == name)
+   {
+      ss << "Vibration Value:\t";
+   }
+   else if ("key" == name)
+   {
+      ss << "Key State:\t";
+   }
+   else
+   {
+      ss << name << "\t";
+   }
+
+   ss << msg->data << "\n";
+
+   ROS_WARN_NAMED("Testing_WARN", ss.str().c_str());
+}
+
+void SDI_state::setVelocity(const nav_msgs::Odometry::ConstPtr& msg)
+{
+   // Update atlas position
    double temp1[] = {
       msg->pose.pose.position.x,
       msg->pose.pose.position.y,
@@ -183,6 +111,7 @@ void SDI_Talker::setVelocity(const nav_msgs::Odometry::ConstPtr& msg)
    };
    this->atlasPosition = vector<double> (temp1, temp1 + sizeof(temp1) / sizeof(double));
 
+   // Update atlas linear velocity
    double temp2[] = {
       msg->twist.twist.linear.x,
       msg->twist.twist.linear.y,
@@ -190,25 +119,22 @@ void SDI_Talker::setVelocity(const nav_msgs::Odometry::ConstPtr& msg)
    };
    this->atlasLinearVelocity = vector<double> (temp2, temp2 + sizeof(temp2) / sizeof(double));
 
+   // Update atlas angular velocity
    double temp3[] = {
       msg->twist.twist.angular.x,
       msg->twist.twist.angular.y,
       msg->twist.twist.angular.z
    };
    this->atlasAngularVelocity = vector<double> (temp3, temp3 + sizeof(temp3) / sizeof(double));
-
 }
 
-void SDI_Talker::setHandWheelForce()
+void SDI_state::setHandWheelForce()
 {
    this->atlasLinearVelocity;
    this->atlasAngularVelocity;
    this->wheelAngle;
 
-// angle restricted to MIN_ANGLE and MAX_ANGLE
-   double MIN_ANGLE = -7;
-   double MAX_ANGLE = 7;
-
+   // Approximate linear speed
    double linearSpeed = 0;
 
    for (vector<double>::iterator iter = atlasLinearVelocity.begin(); atlasLinearVelocity.end() != iter; iter++)
@@ -218,6 +144,7 @@ void SDI_Talker::setHandWheelForce()
 
    linearSpeed = sqrt(linearSpeed);
 
+   // Approximate angular speed
    double angularSpeed = 0;
 
    for (vector<double>::iterator iter = atlasAngularVelocity.begin(); atlasAngularVelocity.end() != iter; iter++)
@@ -227,11 +154,12 @@ void SDI_Talker::setHandWheelForce()
 
    angularSpeed = sqrt(angularSpeed);
 
+   // Set wheel force
    this->wheelForce = linearSpeed * angularSpeed * wheelAngle;
-//   this->feedbackMsg.wheel_force = wheelForce;
+   this->feedbackMsg.wheel_force = wheelForce;
 }
 
-void SDI_Talker::fillFeedbackMsg()
+void SDI_state::fillFeedbackMsg()
 {
    setHandWheelForce();
    this->feedbackMsg.wheel_force = wheelForce;
@@ -239,39 +167,43 @@ void SDI_Talker::fillFeedbackMsg()
    this->feedbackMsg.vibration = vibration;
 }
 
-int SDI_Talker::run(int argc, char **argv)
+int SDI_state::run(int argc, char **argv)
 {
-	ros::init(argc, argv, "SDI_output");
-	ros::NodeHandle handle;
+   ros::init(argc, argv, "SDI_output");
+   ros::NodeHandle handle;
 
-	// Subscriber
-	ros::Subscriber subHandWheelState = handle.subscribe("drc_vehicle_xp900/hand_wheel/state", 1000, &SDI_Talker::setWheelAngle, this);
-	ros::Subscriber subKeyState = handle.subscribe("drc_vehicle_xp900/key/state", 1000, &SDI_Talker::setVibration, this);
-	ros::Subscriber subAtlasHipState = handle.subscribe("ground_truth_odom", 1000, &SDI_Talker::setVelocity, this);
+   // Subscriber
+   ros::Subscriber subHandWheelState = handle.subscribe("drc_vehicle_xp900/hand_wheel/state", 1000, &SDI_state::setWheelAngle, this);
+   ros::Subscriber subKeyState = handle.subscribe("drc_vehicle_xp900/key/state", 1000, &SDI_state::setVibration, this);
+   ros::Subscriber subAtlasHipState = handle.subscribe("ground_truth_odom", 1000, &SDI_state::setVelocity, this);
 
-	// Publisher
-	ros::Publisher pubHDIState = handle.advertise<software_driving_interface::HDI_feedback>("HDI/state", 1000);
+   // Publisher
+   ros::Publisher pubHDIState = handle.advertise<software_driving_interface::HDI_feedback>("HDI/state", 1000);
 
-	ros::Rate loop_rate(10);
-	ros::spinOnce();
-	
-        int count = 0;
-	while (ros::ok())
-	{
+   ros::Rate loop_rate(500); // 500 Hz
+   ros::spinOnce();
 
-           fillFeedbackMsg();
-           logMessage(feedbackMsg);
-           pubHDIState.publish(feedbackMsg);
-           ros::spinOnce();
-           loop_rate.sleep();
-           count++;
-	}
+   int count = 0;
+   while (ros::ok())
+   {
+      // Publish SDI-to-HDI msgs
+      if (messageProcessed)
+      {
+         messageProcessed = false;
+         logMessage(feedbackMsg);
+         pubHDIState.publish(feedbackMsg);
+      }
 
-	return 0;
+      ros::spinOnce();
+      loop_rate.sleep();
+      count++;
+   }
+
+   return 0;
 }
 
 int main(int argc, char **argv)
 {
-   sdi::SDI_Talker talker;
-   talker.run(argc, argv);
+   SDI_state state;
+   state.run(argc, argv);
 }
