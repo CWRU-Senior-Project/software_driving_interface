@@ -17,3 +17,5 @@ cmd and state messages for HDI<-->SDI communication
 
 Launches:
 Launch files for the SDI and HDI.
+
+roslaunch software_driving_interface SDI.launch
