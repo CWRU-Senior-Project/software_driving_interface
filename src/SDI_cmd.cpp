@@ -19,13 +19,50 @@ void SDI_cmd::extractMsgValues(const software_driving_interface::HDI_control::Co
    this->brakePedalPercentMsg.data = msg->brake_pos;
    this->wheelAngleMsg.data = msg->wheel_angle;
    this->handBrakePercentMsg.data = 0;
-   this->directionValueMsg.data = msg->gear;
+   this->directionValueMsg.data = getSimGearFromHDIGear(msg->gear);
    this->keyValueMsg.data = 1;
    this->vibrationMsg.data = msg->vibration;
 
-   messageProcessed = true;
-
    validateMsgInput();
+}
+
+int SDI_cmd::getSimGearFromHDIGear(int gear)
+{
+   int outputGear = 0;
+
+   switch (gear)
+   {
+      // Park
+      case 0:
+         outputGear = 2;
+         break;
+
+      // Reverse
+      case 1:
+         outputGear = -1;
+         break;
+
+      // Neutral
+      case 2:
+         outputGear = 0;
+         break;
+
+      // Drive 1
+      case 3:
+         outputGear = 1;
+         break;
+
+      // Drive 2
+      case 4:
+         outputGear = 1;
+         break;
+
+      default:
+         ROS_WARN_NAMED("Testing_WARN", "Invalid gear value received. Default to neutral.");
+         break;
+   }
+
+   return outputGear;
 }
 
 void SDI_cmd::logMessage(const software_driving_interface::HDI_control::ConstPtr& msg)
@@ -38,7 +75,7 @@ void SDI_cmd::logMessage(const software_driving_interface::HDI_control::ConstPtr
    ss << "gear:\t" << msg->gear << "\n";
    ss << "vibration:\t" << msg->vibration << "\n";
 
-   ROS_WARN_NAMED("Testing_WARN", ss.str().c_str());
+   ROS_WARN_NAMED("Testing_WARN", "%s", ss.str().c_str());
 }
 
 void SDI_cmd::validateMsgInput()
@@ -81,11 +118,9 @@ void SDI_cmd::validateMsgInput()
 */
 
    // Restrict vehicle direction
-   const int* searchResult = std::find(VALID_DIRECTION_VALUES, VALID_DIRECTION_VALUES + 4, directionValueMsg.data);
-
-   if ((!searchResult) && (searchResult >= VALID_DIRECTION_VALUES + 4))
+   if ((-1 > directionValueMsg.data) || (2 < directionValueMsg.data))
    {
-      ROS_WARN("Value of vehicle direction received from HDI (%f) is not VALID. Acceptable values are (-1: REVERSE, 0: NEUTRAL, 1: FORWARD, 2: PARK). Value set to FORWARD.", directionValueMsg.data);
+      ROS_WARN("Value of vehicle direction received from HDI (%d) is not VALID. Acceptable values are (1: REVERSE, 2: NEUTRAL, 3/4: FORWARD, 0: PARK). Value set to NEUTRAL.", directionValueMsg.data);
       directionValueMsg.data = 1;
    }
 
@@ -110,6 +145,8 @@ void SDI_cmd::validateMsgInput()
       ROS_WARN("Value of vibration received from HDI (%f) is GREATER than the maximum acceptable value (%f). Value set to max.", vibrationMsg.data, MAX_VIBRATION_PERCENT);
       vibrationMsg.data = MAX_VIBRATION_PERCENT;
    }
+
+   messageProcessed = true;
 }
 
 int SDI_cmd::run(int argc, char **argv)
@@ -128,12 +165,12 @@ int SDI_cmd::run(int argc, char **argv)
    ros::Publisher pubBrakePedalCmd = handle.advertise<std_msgs::Float64>("drc_vehicle_xp900/brake_pedal/cmd", 1000);
    ros::Publisher pubVehicleDirectionCmd = handle.advertise<std_msgs::Int8>("drc_vehicle_xp900/direction/cmd", 1000);
 
-   ros::Rate loop_rate(100); // 100 Hz
+   ros::Rate loop_rate(500); // 100 Hz
    ros::spinOnce();
 
    while (ros::ok())
    {
-      if (messageProcessed)
+      if (true)//messageProcessed)
       {
          messageProcessed = false;
          logMessage();
@@ -180,7 +217,7 @@ void SDI_cmd::logMessage()
 
    ss << "\n";
 
-   ROS_WARN_NAMED("Testing_WARN", ss.str().c_str());
+   ROS_WARN_NAMED("Testing_WARN", "%s", ss.str().c_str());
 }
 
 int main(int argc, char **argv)
