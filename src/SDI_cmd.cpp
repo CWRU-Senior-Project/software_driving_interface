@@ -24,6 +24,8 @@ void SDI_cmd::extractMsgValues(const software_driving_interface::HDI_control::Co
    this->vibrationMsg.data = msg->vibration;
 
    messageProcessed = true;
+
+   validateMsgInput();
 }
 
 void SDI_cmd::logMessage(const software_driving_interface::HDI_control::ConstPtr& msg)
@@ -64,7 +66,7 @@ void SDI_cmd::validateMsgInput()
       ROS_WARN("Value of brake position received from HDI (%f) is GREATER than the maximum acceptable value (%f). Value set to max.", brakePedalPercentMsg.data, MAX_BRAKE_PEDAL_PERCENT);
       brakePedalPercentMsg.data = MAX_BRAKE_PEDAL_PERCENT;
    }
-
+/*
    // Restrict wheel position
    if (MIN_WHEEL_POS() > this->wheelAngleMsg.data)
    {
@@ -76,18 +78,18 @@ void SDI_cmd::validateMsgInput()
       ROS_WARN("Value of wheel angle received from HDI (%f) is GREATER than the maximum acceptable value (%f). Value set to max.", wheelAngleMsg.data, MAX_WHEEL_POS());
       wheelAngleMsg.data = MAX_WHEEL_POS();
    }
-
+*/
 
    // Restrict vehicle direction
    const int* searchResult = std::find(VALID_DIRECTION_VALUES, VALID_DIRECTION_VALUES + 4, directionValueMsg.data);
 
    if ((!searchResult) && (searchResult >= VALID_DIRECTION_VALUES + 4))
    {
-      ROS_WARN("Value of vehicle direction received from HDI (%f) is not VALID. Acceptable values are (0: PARK, 1: REVERSE, 2: NEUTRAL, 3: FORWARD). Value set to NEUTRAL.", directionValueMsg.data);
-      directionValueMsg.data = 2;
+      ROS_WARN("Value of vehicle direction received from HDI (%f) is not VALID. Acceptable values are (-1: REVERSE, 0: NEUTRAL, 1: FORWARD, 2: PARK). Value set to FORWARD.", directionValueMsg.data);
+      directionValueMsg.data = 1;
    }
 
-   if (0 == directionValueMsg.data)
+   if (2 == directionValueMsg.data)
    {
       handBrakePercentMsg.data = 1.0;
       directionValueMsg.data = 0.0;

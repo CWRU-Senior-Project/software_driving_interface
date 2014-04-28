@@ -91,7 +91,7 @@ namespace software_driving_interface
    }; // end of SDI_cmd class
 
    // Specify acceptable values for direction and key state
-   const int SDI_cmd::VALID_DIRECTION_VALUES[4] = { 0, 1, 2, 3 };
+   const int SDI_cmd::VALID_DIRECTION_VALUES[4] = { -1, 0, 1, 2 };
    const int SDI_cmd::VALID_KEY_VALUES[2] = { 0, 1 };
 
 } // end of namespace
